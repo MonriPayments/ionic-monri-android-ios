@@ -19,4 +19,15 @@ public class IonicMonriPlugin extends Plugin {
         ret.put("value", implementation.echo(value));
         call.resolve(ret);
     }
+
+    @PluginMethod
+    public void confirmPayment(PluginCall options, PluginCall params) {
+        // init Monri API
+        // invoke confirmPayment
+        String value = call.getString("value");
+
+        JSObject ret = new JSObject();
+        ret.put("value", implementation.echo(value));
+        call.resolve(ret);
+    }
 }
