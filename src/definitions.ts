@@ -52,17 +52,10 @@ export type ConfirmPaymentParams = {
 };
 
 export interface IonicMonriPlugin {
-    echo(options: { value: string }): Promise<{ value: string }>;
-
     confirmPayment(
         options: {
             options: MonriApiOptions,
             params: ConfirmPaymentParams
         }
     ): Promise<PaymentResult>;
-
-    showMessage(): void;
-
-    anotherMethod(options: MonriApiOptions): void;
-
 }
