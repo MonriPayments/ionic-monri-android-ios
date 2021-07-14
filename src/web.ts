@@ -1,10 +1,12 @@
-import { WebPlugin } from '@capacitor/core';
+import {WebPlugin} from '@capacitor/core';
 
-import type { IonicMonriPlugin } from './definitions';
+import type {ConfirmPaymentParams, IonicMonriPlugin, MonriApiOptions, PaymentResult} from './definitions';
 
 export class IonicMonriWeb extends WebPlugin implements IonicMonriPlugin {
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
-  }
+    async confirmPayment(options: { options: MonriApiOptions; params: ConfirmPaymentParams }): Promise<PaymentResult> {
+        console.error('confirmPayment method is not implemented for web');
+        return Promise.resolve(undefined);
+    }
+
 }
+

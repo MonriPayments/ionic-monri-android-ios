@@ -11,9 +11,27 @@ npx cap sync
 
 ## API
 
-<docgen-index></docgen-index>
+<docgen-index>
+
+* [`confirmPayment(...)`](#confirmpayment)
+
+</docgen-index>
 
 <docgen-api>
-<!-- run docgen to generate docs from the source -->
-<!-- More info: https://github.com/ionic-team/capacitor-docgen -->
+<!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
+
+### confirmPayment(...)
+
+```typescript
+confirmPayment(options: { options: MonriApiOptions; params: ConfirmPaymentParams; }) => any
+```
+
+| Param         | Type                                                                     |
+| ------------- | ------------------------------------------------------------------------ |
+| **`options`** | <code>{ options: MonriApiOptions; params: ConfirmPaymentParams; }</code> |
+
+**Returns:** <code>any</code>
+
+--------------------
+
 </docgen-api>
