@@ -1,6 +1,10 @@
 package com.monri.ionic;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.getcapacitor.JSObject;
@@ -14,6 +18,9 @@ import com.monri.android.model.ConfirmPaymentParams;
 import com.monri.android.model.CustomerParams;
 import com.monri.android.model.MonriApiOptions;
 import com.monri.android.model.TransactionParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
@@ -29,6 +36,8 @@ public class IonicMonriPlugin extends Plugin {
 
         MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
         ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
+
+        IonicMonriPlugin.writeMetaData(getContext(), String.format("Android-SDK:Ionic:%s", BuildConfig.MONRI_IONIC_PLUGIN_VERSION));
 
         monri = new Monri(getActivity(), monriApiOptions);
         monri.confirmPayment(getActivity(), confirmPaymentParams);
@@ -94,6 +103,18 @@ public class IonicMonriPlugin extends Plugin {
     ) {
         return jsonObject.getString(key);
 
+    }
+
+    private static void writeMetaData(Context context, String library) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("library", library);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        sharedPreferences.edit().putString("monri_cross_platform_meta_key", jsonObject.toString()).apply();
     }
 
 }

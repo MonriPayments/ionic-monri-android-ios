@@ -5,6 +5,8 @@ ext {
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.3.0'
 }
 
+def VERSION_NAME = "1.0"
+
 buildscript {
     repositories {
         google()
@@ -23,13 +25,19 @@ android {
         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 21
         targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 30
         versionCode 1
-        versionName "1.0"
+        versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String", 'MONRI_IONIC_PLUGIN_VERSION', "\"${VERSION_NAME}\""
+        }
+
+        debug {
+            buildConfigField "String", 'MONRI_IONIC_PLUGIN_VERSION', "\"${VERSION_NAME}\""
         }
     }
     lintOptions {
