@@ -116,24 +116,30 @@ public class IonicMonriPlugin: CAPPlugin {
             throw MonriAndroidIosConfirmPaymentError.missingRequiredAttribute("clientSecret")
         }
 
-        guard let cardJSObject: JSObject = paramsObject["card"] as? JSObject else {
-            throw MonriAndroidIosConfirmPaymentError.missingRequiredAttribute("card")
+        let savedCard: JSObject? = paramsObject["savedCard"] as? JSObject
+        let cardJSObject: JSObject? = paramsObject["card"] as? JSObject
+        
+        if(savedCard == nil && cardJSObject == nil){
+            throw MonriAndroidIosConfirmPaymentError.missingRequiredAttribute("you have to provide saved card or new card")
         }
+        
 
+        let paymentMethod = cardJSObject == nil ? SavedCard(
+            panToken: try requiredStringAttribute(savedCard!, "panToken", "params.savedCard.panToken"),
+            cvc: try requiredStringAttribute(savedCard!, "cvv", "params.savedCard.cvv")
+        ).toPaymentMethodParams()
+        :Card(
+            number: try requiredStringAttribute(cardJSObject!, "pan", "params.card.pan"),
+            cvc: try requiredStringAttribute(cardJSObject!, "cvv", "params.card.cvv"),
+            expMonth: try requiredIntAttribute(cardJSObject!, "expiryMonth", "params.card.expiryMonth"),
+            expYear: try requiredIntAttribute(cardJSObject!, "expiryYear", "params.card.expiryYear"),
+            tokenizePan: (cardJSObject!["saveCard"] as? Bool) ?? false
+        ).toPaymentMethodParams()
+        
         guard let transactionJSObject: JSObject = paramsObject["transaction"] as? JSObject else {
             throw MonriAndroidIosConfirmPaymentError.missingRequiredAttribute("transaction")
 
         }
-
-
-        let paymentMethod = Card(
-                number: try requiredStringAttribute(cardJSObject, "pan", "params.card.pan"),
-                cvc: try requiredStringAttribute(cardJSObject, "cvv", "params.card.cvv"),
-                expMonth: try requiredIntAttribute(cardJSObject, "expiryMonth", "params.card.expiryMonth"),
-                expYear: try requiredIntAttribute(cardJSObject, "expiryYear", "params.card.expiryYear"),
-                tokenizePan: (cardJSObject["saveCard"] as? Bool) ?? false
-        ).toPaymentMethodParams()
-
 
         let customerParams = CustomerParams(email: getString(transactionJSObject, "email"),
                 fullName: getString(transactionJSObject, "fullName"),

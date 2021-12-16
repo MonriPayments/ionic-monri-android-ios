@@ -13,6 +13,7 @@ import com.monri.android.model.Card;
 import com.monri.android.model.ConfirmPaymentParams;
 import com.monri.android.model.CustomerParams;
 import com.monri.android.model.MonriApiOptions;
+import com.monri.android.model.SavedCard;
 import com.monri.android.model.TransactionParams;
 
 import java.lang.ref.WeakReference;
@@ -25,7 +26,7 @@ public class IonicMonriPlugin extends Plugin {
     @PluginMethod
     public void confirmPayment(PluginCall call) {
         getBridge().saveCall(call);
-        savedPluginId =  call.getCallbackId();
+        savedPluginId = call.getCallbackId();
 
         MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
         ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
@@ -51,16 +52,30 @@ public class IonicMonriPlugin extends Plugin {
 
         final JSObject paramsObject = params.getObject("params");
         final String clientSecret = paramsObject.getString("clientSecret");
-        final JSObject cardJSObject = paramsObject.getJSObject("card");
+
+        Card card = null;
+        SavedCard savedCard = null;
+
+        if (params.getObject("params").has("card")) {
+            final JSObject cardJSObject = paramsObject.getJSObject("card");
+            card = new Card(
+                    getNullableString(cardJSObject, "pan"),
+                    Integer.valueOf(getNullableString(cardJSObject, "expiryMonth")),
+                    Integer.valueOf(getNullableString(cardJSObject, "expiryYear")),
+                    getNullableString(cardJSObject, "cvv")
+            );
+
+        } else {
+            //saved card
+            final JSObject cardJSObject = paramsObject.getJSObject("savedCard");
+            savedCard = new SavedCard(
+                    getNullableString(cardJSObject, "panToken"),
+                    getNullableString(cardJSObject, "cvv")
+            );
+
+        }
+
         final JSObject transactionJSObject = paramsObject.getJSObject("transaction");
-
-        final Card card = new Card(
-                getNullableString(cardJSObject,"pan"),
-                Integer.valueOf(getNullableString(cardJSObject,"expiryMonth")),
-                Integer.valueOf(getNullableString(cardJSObject,"expiryYear")),
-                getNullableString(cardJSObject,"cvv")
-        );
-
         final CustomerParams customerParams = new CustomerParams()
                 .setAddress(getNullableString(transactionJSObject, "address"))
                 .setFullName(getNullableString(transactionJSObject, "fullName"))
@@ -72,8 +87,10 @@ public class IonicMonriPlugin extends Plugin {
 
         ConfirmPaymentParams confirmPaymentParams = ConfirmPaymentParams.create(
                 clientSecret,
-                card.toPaymentMethodParams(),
-                new TransactionParams().set(customerParams)
+                card == null ? savedCard.toPaymentMethodParams() : card.toPaymentMethodParams(),
+                new TransactionParams()
+                        .set("order_info", getNullableString(transactionJSObject, "orderInfo"))
+                        .set(customerParams)
         );
 
         return confirmPaymentParams;
