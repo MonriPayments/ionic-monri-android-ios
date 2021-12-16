@@ -65,8 +65,7 @@ public class IonicMonriPlugin extends Plugin {
                     getNullableString(cardJSObject, "cvv")
             );
 
-        } else {
-            //saved card
+        } else if(params.getObject("params").has("savedCard")){
             final JSObject cardJSObject = paramsObject.getJSObject("savedCard");
             savedCard = new SavedCard(
                     getNullableString(cardJSObject, "panToken"),
