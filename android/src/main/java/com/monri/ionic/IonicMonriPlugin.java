@@ -1,6 +1,7 @@
 package com.monri.ionic;
 
 import android.content.Intent;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.getcapacitor.JSObject;
@@ -25,14 +26,16 @@ public class IonicMonriPlugin extends Plugin {
 
     @PluginMethod
     public void confirmPayment(PluginCall call) {
-        getBridge().saveCall(call);
-        savedPluginId = call.getCallbackId();
+        if (isPaymentMethodSupported(call)) {
+            getBridge().saveCall(call);
+            savedPluginId = call.getCallbackId();
 
-        MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
-        ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
+            MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
+            ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
 
-        monri = new Monri(getActivity(), monriApiOptions);
-        monri.confirmPayment(getActivity(), confirmPaymentParams);
+            monri = new Monri(getActivity(), monriApiOptions);
+            monri.confirmPayment(getActivity(), confirmPaymentParams);
+        }
     }
 
     public void monriHandleOnActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -44,6 +47,21 @@ public class IonicMonriPlugin extends Plugin {
                         new WeakReference<>(getBridge()),
                         savedPluginId
                 ));
+    }
+
+    private boolean isPaymentMethodSupported(final PluginCall call) {
+        if (!call.hasOption("params")) {
+            call.reject("missing params object");
+            return false;
+        }
+
+        final boolean doesContainValidPaymentMethod = call.getObject("params").has("card") ||
+                call.getObject("params").has("savedCard");
+
+        if (!doesContainValidPaymentMethod) {
+            call.reject("Unsupported payment method, 'card' or 'savedCard' not found");
+        }
+        return doesContainValidPaymentMethod;
     }
 
     private ConfirmPaymentParams parseConfirmPaymentParams(final PluginCall params) {
@@ -65,15 +83,15 @@ public class IonicMonriPlugin extends Plugin {
                     getNullableString(cardJSObject, "cvv")
             );
 
-        } else if(params.getObject("params").has("savedCard")){
+        } else if (params.getObject("params").has("savedCard")) {
             final JSObject cardJSObject = paramsObject.getJSObject("savedCard");
             savedCard = new SavedCard(
                     getNullableString(cardJSObject, "panToken"),
                     getNullableString(cardJSObject, "cvv")
             );
 
-        }else {
-            throw new IllegalStateException("Unsupported payment method, 'card' or 'saved_card' not found");
+        } else {
+            throw new IllegalStateException("Unsupported payment method, 'card' or 'savedCard' not found");
         }
 
         final JSObject transactionJSObject = paramsObject.getJSObject("transaction");
