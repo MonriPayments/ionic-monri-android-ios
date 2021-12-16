@@ -72,6 +72,8 @@ public class IonicMonriPlugin extends Plugin {
                     getNullableString(cardJSObject, "cvv")
             );
 
+        }else {
+            throw new IllegalStateException("Unsupported payment method, 'card' or 'saved_card' not found");
         }
 
         final JSObject transactionJSObject = paramsObject.getJSObject("transaction");
