@@ -26,16 +26,27 @@ public class IonicMonriPlugin extends Plugin {
 
     @PluginMethod
     public void confirmPayment(PluginCall call) {
-        if (isPaymentMethodSupported(call)) {
-            getBridge().saveCall(call);
-            savedPluginId = call.getCallbackId();
 
-            MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
-            ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
-
-            monri = new Monri(getActivity(), monriApiOptions);
-            monri.confirmPayment(getActivity(), confirmPaymentParams);
+        if (!call.hasOption("params")) {
+            call.reject("missing params object");
         }
+
+        final boolean doesContainValidPaymentMethod = call.getObject("params").has("card") ||
+                call.getObject("params").has("savedCard");
+
+        if (!doesContainValidPaymentMethod) {
+            call.reject("Unsupported payment method, 'card' or 'savedCard' not found");
+        }
+
+        getBridge().saveCall(call);
+        savedPluginId = call.getCallbackId();
+
+        MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
+        ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
+
+        monri = new Monri(getActivity(), monriApiOptions);
+        monri.confirmPayment(getActivity(), confirmPaymentParams);
+
     }
 
     public void monriHandleOnActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -47,21 +58,6 @@ public class IonicMonriPlugin extends Plugin {
                         new WeakReference<>(getBridge()),
                         savedPluginId
                 ));
-    }
-
-    private boolean isPaymentMethodSupported(final PluginCall call) {
-        if (!call.hasOption("params")) {
-            call.reject("missing params object");
-            return false;
-        }
-
-        final boolean doesContainValidPaymentMethod = call.getObject("params").has("card") ||
-                call.getObject("params").has("savedCard");
-
-        if (!doesContainValidPaymentMethod) {
-            call.reject("Unsupported payment method, 'card' or 'savedCard' not found");
-        }
-        return doesContainValidPaymentMethod;
     }
 
     private ConfirmPaymentParams parseConfirmPaymentParams(final PluginCall params) {
