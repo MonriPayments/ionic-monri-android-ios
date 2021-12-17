@@ -29,6 +29,7 @@ public class IonicMonriPlugin extends Plugin {
 
         if (!call.hasOption("params")) {
             call.reject("missing params object");
+            return;
         }
 
         final boolean doesContainValidPaymentMethod = call.getObject("params").has("card") ||
@@ -36,6 +37,7 @@ public class IonicMonriPlugin extends Plugin {
 
         if (!doesContainValidPaymentMethod) {
             call.reject("Unsupported payment method, 'card' or 'savedCard' not found");
+            return;
         }
 
         getBridge().saveCall(call);
