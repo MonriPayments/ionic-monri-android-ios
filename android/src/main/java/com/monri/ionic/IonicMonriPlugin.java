@@ -107,14 +107,7 @@ public class IonicMonriPlugin extends Plugin {
 
     private static void writeMetaData(Context context, String library) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("library", library);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        sharedPreferences.edit().putString("monri_cross_platform_meta_key", jsonObject.toString()).apply();
+        sharedPreferences.edit().putString("com.monri.meta.library", library).apply();
     }
 
 }
