@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -72,8 +70,6 @@ public class IonicMonriPlugin extends Plugin {
     }
 
     private ConfirmPaymentParams parseConfirmPaymentParams(final PluginCall params) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         final JSObject paramsObject = params.getObject("params");
         final String clientSecret = paramsObject.getString("clientSecret");

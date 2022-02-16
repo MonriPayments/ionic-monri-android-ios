@@ -1,16 +1,17 @@
 package com.monri.ionic;
 import android.content.Context;
-import android.widget.Toast;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.getcapacitor.Bridge;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
 import com.monri.android.ResultCallback;
 import com.monri.android.model.PaymentResult;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PaymentResultCallback implements ResultCallback<PaymentResult> {
     private final WeakReference<Context> contextWeakReference;
@@ -33,14 +34,30 @@ public class PaymentResultCallback implements ResultCallback<PaymentResult> {
         final Bridge bridge = bridgeWeakReference.get();
         final PluginCall savedCall = bridge.getSavedCall(pluginCallId);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, false);
-        JSObject paymentResultJSObject;
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        final String status = paymentResult.getStatus();
+        data.put("status", paymentResult.getStatus());
+        data.put("amount", paymentResult.getAmount());
+        data.put("order_number", paymentResult.getOrderNumber());
+        data.put("transaction_type", paymentResult.getTransactionType());
+        data.put("pan_token", paymentResult.getPanToken());
+        List<String> errors = paymentResult.getErrors();
+        if (errors != null) {
+            data.put("errors", errors);
+        }
+        data.put("created_at", paymentResult.getCreatedAt());
+        data.put("amount", paymentResult.getAmount());
+        data.put("currency", paymentResult.getCurrency());
+        response.put("status", status);
+        response.put("data", data);
+
+        JSONObject JSONObjectResponse = new JSONObject(response);
 
         try {
-            paymentResultJSObject = new JSObject(mapper.writeValueAsString(paymentResult));
-            savedCall.resolve(paymentResultJSObject);
-        } catch (JSONException | JsonProcessingException e) {
+            JSObject jsObjectResponse = JSObject.fromJSONObject(JSONObjectResponse);
+            savedCall.resolve(jsObjectResponse);
+        } catch (JSONException e) {
             e.printStackTrace();
             savedCall.reject(e.getMessage());
         }
