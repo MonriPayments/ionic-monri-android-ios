@@ -1,6 +1,6 @@
 {
   "name": "ionic-monri-android-ios",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Encapsulated Monri's Android and SDK payment features",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

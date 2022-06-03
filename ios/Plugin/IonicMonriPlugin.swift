@@ -98,7 +98,7 @@ public class IonicMonriPlugin: CAPPlugin {
     }
 
      private func writeMetaData(){
-            let version: String = Bundle(identifier: "org.cocoapods.IonicMonriAndroidIos")?.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+            let version: String = Bundle(identifier: "org.cocoapods.IonicMonriAndroidIos")?.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
 
             let defaults = UserDefaults.standard
             defaults.set("iOS-SDK:Ionic:\(version)", forKey: "com.monri.meta.library")
