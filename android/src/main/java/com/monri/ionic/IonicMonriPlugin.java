@@ -1,9 +1,11 @@
 package com.monri.ionic;
 
+import android.content.Context;
 import android.content.Intent;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -16,6 +18,9 @@ import com.monri.android.model.CustomerParams;
 import com.monri.android.model.MonriApiOptions;
 import com.monri.android.model.SavedCard;
 import com.monri.android.model.TransactionParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
@@ -46,6 +51,8 @@ public class IonicMonriPlugin extends Plugin {
         MonriApiOptions monriApiOptions = parseMonriApiOptions(call);
         ConfirmPaymentParams confirmPaymentParams = parseConfirmPaymentParams(call);
 
+        IonicMonriPlugin.writeMetaData(getContext(), String.format("Android-SDK:Ionic:%s", BuildConfig.MONRI_IONIC_PLUGIN_VERSION));
+
         monri = new Monri(getActivity(), monriApiOptions);
         monri.confirmPayment(getActivity(), confirmPaymentParams);
 
@@ -63,8 +70,6 @@ public class IonicMonriPlugin extends Plugin {
     }
 
     private ConfirmPaymentParams parseConfirmPaymentParams(final PluginCall params) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         final JSObject paramsObject = params.getObject("params");
         final String clientSecret = paramsObject.getString("clientSecret");
@@ -130,6 +135,11 @@ public class IonicMonriPlugin extends Plugin {
     ) {
         return jsonObject.getString(key);
 
+    }
+
+    private static void writeMetaData(Context context, String library) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences.edit().putString("com.monri.meta.library", library).apply();
     }
 
 }
