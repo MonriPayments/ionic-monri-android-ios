@@ -63,7 +63,7 @@ const result = await IonicMonri.confirmPayment({
         params: {
             clientSecret: "client_secret", // create one on your backend
             savedCard: {
-                panToken: 'd5719409d1b8eb92adae0feccd2964b805f93ae3936fdd9d8fc01a800d094584', //retrive one via customers API
+                panToken: 'd5719409d1b8eb92adae0feccd2964b805f93ae3936fdd9d8fc01a800d094584', //retrive one via API
                 cvv: '123',//allow the user to enter cvv..
             },
             transaction: {
