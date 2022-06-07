@@ -34,14 +34,11 @@ public class IonicMonriPlugin: CAPPlugin {
             writeMetaData()
 
             monri.confirmPayment(confirmPaymentParams) { [weak self] result in
-
-
                 switch (result) {
                 case .result(let paymentResult):
                     var rv: [String: Any] = [
                         "status": paymentResult.status,
                         "currency": paymentResult.currency,
-                        "clientSecret": paymentResult.currency,
                         "amount": paymentResult.amount,
                         "orderNumber": paymentResult.orderNumber,
                         "createdAt": paymentResult.createdAt,
